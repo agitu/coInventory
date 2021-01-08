@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.3.7.RELEASE'
+}
+
+group 'org.coinventory'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    compile 'org.springframework.boot:spring-boot-starter-web:2.3.7.RELEASE'
+}
