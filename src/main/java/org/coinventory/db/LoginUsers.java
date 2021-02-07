@@ -8,7 +8,7 @@ public class LoginUsers {
     @Id
     private Long id;
     private String email;
-    private String password;
+    private String pwd;
     private Boolean adm;
     @OneToOne
     @JoinColumn(name = "users", referencedColumnName = "id")
@@ -34,12 +34,12 @@ public class LoginUsers {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPwd() {
+        return pwd;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
     }
 
     public Boolean getAdm() {
