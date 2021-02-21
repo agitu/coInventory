@@ -2,17 +2,23 @@ class App extends React.Component {
     constructor(props) {
         super(props)
         this.onItemClick = this.onItemClick.bind(this)
-        this.state = {dataset: "manage-users", isAdm: false}
+        this.state = {dataset: <Profile />, isAdm: false}
     }
 
     componentDidMount() {
         fetch("http://localhost:8080/adm")
             .then(res => res.text())
-            .then(res => this.setState({isAdm:res}))
+            .then(res => this.setState({isAdm: res, dataset: (res == "true") ? <ManageUsers /> : <Profile />}))
     }
 
     onItemClick(event) {
-        this.setState({dataset: event.currentTarget.dataset.id})
+        var datasetId = event.currentTarget.dataset.id
+        if (datasetId == "manage-users") {
+            this.setState({dataset: <ManageUsers />})
+        }
+        else if (datasetId == "profile") {
+            this.setState({dataset: <Profile />})
+        }
     }
 
     render() {
@@ -22,7 +28,7 @@ class App extends React.Component {
                     <MainMenu onItemClick={this.onItemClick} isAdm={this.state.isAdm} />
                 </div>
                 <div class="col-10">
-                    <b>{this.state.isAdm}</b>
+                    {this.state.dataset}
                 </div>
             </div>
         )
@@ -45,7 +51,13 @@ class MainMenu extends React.Component {
 
 class ManageUsers extends React.Component {
     render() {
-        return (<b>1</b>)
+        return (<b>manage-users</b>)
+    }
+}
+
+class Profile extends React.Component {
+    render() {
+        return (<b>profile</b>)
     }
 }
 
