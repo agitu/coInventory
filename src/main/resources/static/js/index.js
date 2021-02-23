@@ -51,7 +51,26 @@ class MainMenu extends React.Component {
 
 class ManageUsers extends React.Component {
     render() {
-        return (<b>manage-users</b>)
+        return (<div>
+        <div class="row">
+            <div class="input-group">
+                <input type="search" class="form-control border-right-0 border" placeholder="Surname" />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary border-left-0 border" type="button">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+                <button class="btn btn-outline-secondary" type="button" data-toggle="tooltip" data-placement="bottom" title="Add user">
+                    <i class="fa fa-user-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table">
+
+            </table>
+        </div>
+        </div>)
     }
 }
 
