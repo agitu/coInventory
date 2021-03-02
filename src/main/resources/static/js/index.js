@@ -2,23 +2,47 @@ class App extends React.Component {
     constructor(props) {
         super(props)
         this.onItemClick = this.onItemClick.bind(this)
+        this.addUserClick = this.addUserClick.bind(this)
+        this.saveManageUsers = this.saveManageUsers.bind(this)
+        this.cancelClick = this.cancelClick.bind(this)
+        this.datasetId = ""
         this.state = {dataset: <Profile />, isAdm: false}
     }
 
     componentDidMount() {
         fetch("http://localhost:8080/adm")
             .then(res => res.text())
-            .then(res => this.setState({isAdm: res, dataset: (res == "true") ? <ManageUsers /> : <Profile />}))
+            .then(res => {
+                this.setState({isAdm: res, dataset: (res == "true") ? <ManageUsers saveState={this.saveManageUsers} searchValue="" addUserClick={this.addUserClick} /> : <Profile />})
+                this.datasetId = (res == "true") ? "manage-users" : "profile"
+            })
     }
 
-    onItemClick(event) {
-        var datasetId = event.currentTarget.dataset.id
+    showMainPage(datasetId) {
         if (datasetId == "manage-users") {
-            this.setState({dataset: <ManageUsers />})
+            var searchValue = (this.state.manageUsers && this.state.manageUsers.searchValue) || ""
+            this.setState({dataset: <ManageUsers saveState={this.saveManageUsers} searchValue={searchValue} addUserClick={this.addUserClick} />})
         }
         else if (datasetId == "profile") {
             this.setState({dataset: <Profile />})
         }
+    }
+
+    onItemClick(event) {
+        this.datasetId = event.currentTarget.dataset.id
+        this.showMainPage(this.datasetId)
+    }
+
+    addUserClick(event) {
+        this.setState({dataset: <AddUser cancelClick={this.cancelClick} />})
+    }
+
+    saveManageUsers() {
+        this.setState({manageUsers: {searchValue:document.getElementById("search").value}})
+    }
+
+    cancelClick(event) {
+        this.showMainPage(this.datasetId)
     }
 
     render() {
@@ -50,17 +74,29 @@ class MainMenu extends React.Component {
 }
 
 class ManageUsers extends React.Component {
+    constructor(props) {
+        super(props)
+    }
+
+    componentDidMount() {
+        document.getElementById("search").value = this.props.searchValue
+    }
+
+    componentWillUnmount() {
+        this.props.saveState()
+    }
+
     render() {
         return (<div>
         <div class="row">
             <div class="input-group">
-                <input type="search" class="form-control border-right-0 border" placeholder="Surname" />
+                <input id="search" type="text" class="form-control border-right-0 border" placeholder="Surname" />
                 <div class="input-group-append">
                     <button class="btn btn-outline-secondary border-left-0 border" type="button">
                         <i class="fa fa-search"></i>
                     </button>
                 </div>
-                <button class="btn btn-outline-secondary" type="button" data-toggle="tooltip" data-placement="bottom" title="Add user">
+                <button class="btn btn-outline-secondary" type="button" onClick={this.props.addUserClick} data-toggle="tooltip" data-placement="bottom" title="Add user">
                     <i class="fa fa-user-plus"></i>
                 </button>
             </div>
@@ -71,6 +107,63 @@ class ManageUsers extends React.Component {
             </table>
         </div>
         </div>)
+    }
+}
+
+class AddUser extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {enableAccount: false}
+        this.changeAccountForm = this.changeAccountForm.bind(this)
+    }
+
+    changeAccountForm(event) {
+        this.setState({enableAccount: event.target.checked})
+    }
+
+    render() {
+        return (<div>
+                <div class="row col-6">
+                    <form class="col-12">
+                        <fieldset>
+                            <legend>Add user</legend>
+                            <div class="form-group">
+                                <label for="uname">Name</label>
+                                <input type="text" class="form-control" id="uname" />
+                            </div>
+                            <div class="form-group">
+                                <label for="surname">Surname</label>
+                                <input type="text" class="form-control" id="surname" />
+                            </div>
+                            <div class="form-group">
+                                <label for="role">Role</label>
+                                <select class="form-control" id="role">
+                                    <option>User</option>
+                                    <option>Administrator</option>
+                                </select>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="checkAccount" onChange={this.changeAccountForm} />
+                                <label class="form-check-label" for="checkAccount">Add account</label>
+                            </div>
+                        </fieldset>
+                        <fieldset disabled={!this.state.enableAccount}>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" />
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" />
+                            </div>
+                        </fieldset>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-primary mx-2" onClick={this.props.cancelClick}>Cancel</button>
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </div>
+                    </form>
+                </div>
+                </div>)
     }
 }
 
