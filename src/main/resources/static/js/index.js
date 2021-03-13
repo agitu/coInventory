@@ -6,7 +6,7 @@ class App extends React.Component {
         this.saveManageUsers = this.saveManageUsers.bind(this)
         this.cancelClick = this.cancelClick.bind(this)
         this.datasetId = ""
-        this.state = {dataset: <Profile />, isAdm: false}
+        this.state = {dataset: <Profile />, isAdm: "false"}
     }
 
     componentDidMount() {
@@ -64,10 +64,10 @@ class MainMenu extends React.Component {
         const isAdm = this.props.isAdm
         return (
             <nav class="nav flex-column nav-pills">
-                {isAdm &&
+                {isAdm == "true" &&
                 <a class="nav-link active" data-toggle="pill" data-id="manage-users" onClick={this.props.onItemClick} aria-current="page" href="#">Manage users</a>
                 }
-                <a className={isAdm ? "nav-link" : "nav-link active"}  data-toggle="pill" data-id="profile" onClick={this.props.onItemClick} href="#">Profile</a>
+                <a className={isAdm == "true" ? "nav-link" : "nav-link active"}  data-toggle="pill" data-id="profile" onClick={this.props.onItemClick} href="#">Profile</a>
             </nav>
         )
     }
@@ -121,6 +121,21 @@ class AddUser extends React.Component {
         this.setState({enableAccount: event.target.checked})
     }
 
+    saveForm() {
+        var form = document.querySelector("form")
+        var values = {uname: form.uname.value, surname: form.surname.value}
+        if (form.checkAccount.checked) {
+            values['email'] = form.email.value
+            values['role'] = form.role.value
+            values['password'] = form.password.value
+        }
+
+        fetch("/user", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            body: JSON.stringify(values) })
+    }
+
     render() {
         return (<div>
                 <div class="row col-6">
@@ -129,21 +144,14 @@ class AddUser extends React.Component {
                             <legend>Add user</legend>
                             <div class="form-group">
                                 <label for="uname">Name</label>
-                                <input type="text" class="form-control" id="uname" />
+                                <input type="text" class="form-control" name="uname" id="uname" />
                             </div>
                             <div class="form-group">
                                 <label for="surname">Surname</label>
-                                <input type="text" class="form-control" id="surname" />
-                            </div>
-                            <div class="form-group">
-                                <label for="role">Role</label>
-                                <select class="form-control" id="role">
-                                    <option>User</option>
-                                    <option>Administrator</option>
-                                </select>
+                                <input type="text" class="form-control" name="surname" id="surname" />
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="checkAccount" onChange={this.changeAccountForm} />
+                                <input class="form-check-input" type="checkbox" name="checkAccount" id="checkAccount" onChange={this.changeAccountForm} />
                                 <label class="form-check-label" for="checkAccount">Add account</label>
                             </div>
                         </fieldset>
@@ -153,13 +161,20 @@ class AddUser extends React.Component {
                                 <input type="email" class="form-control" id="email" name="email" />
                             </div>
                             <div class="form-group">
+                                <label for="role">Role</label>
+                                <select class="form-control" name="role" id="role">
+                                    <option value="user">User</option>
+                                    <option value="administrator">Administrator</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="password">Password</label>
                                 <input type="password" class="form-control" id="password" name="password" />
                             </div>
                         </fieldset>
                         <div class="d-flex justify-content-center">
                             <button type="button" class="btn btn-primary mx-2" onClick={this.props.cancelClick}>Cancel</button>
-                            <button type="submit" class="btn btn-success">Save</button>
+                            <button type="button" class="btn btn-success" onClick={this.saveForm}>Save</button>
                         </div>
                     </form>
                 </div>
