@@ -5,6 +5,8 @@ class App extends React.Component {
         this.addUserClick = this.addUserClick.bind(this)
         this.saveManageUsers = this.saveManageUsers.bind(this)
         this.cancelClick = this.cancelClick.bind(this)
+        this.addUserSuccess = this.addUserSuccess.bind(this)
+        this.addUserError = this.addUserError.bind(this)
         this.datasetId = ""
         this.state = {dataset: <Profile />, isAdm: "false"}
     }
@@ -33,8 +35,16 @@ class App extends React.Component {
         this.showMainPage(this.datasetId)
     }
 
+    addUserSuccess() {
+        this.setState({dataset: <InfoPage text="New user successfully saved" backClick={this.cancelClick} addMoreClick={this.addUserClick} />})
+    }
+
+    addUserError() {
+        this.setState({dataset: <InfoPage text="Error user save" backClick={this.cancelClick} />})
+    }
+
     addUserClick(event) {
-        this.setState({dataset: <AddUser cancelClick={this.cancelClick} />})
+        this.setState({dataset: <AddUser cancelClick={this.cancelClick} success={this.addUserSuccess} error={this.addUserError} />})
     }
 
     saveManageUsers() {
@@ -115,6 +125,7 @@ class AddUser extends React.Component {
         super(props)
         this.state = {enableAccount: false}
         this.changeAccountForm = this.changeAccountForm.bind(this)
+        this.saveForm = this.saveForm.bind(this)
     }
 
     changeAccountForm(event) {
@@ -134,6 +145,7 @@ class AddUser extends React.Component {
             method: "POST",
             headers: { 'Content-Type': 'application/json;charset=utf-8' },
             body: JSON.stringify(values) })
+            .then(res => { if (res.ok) { this.props.success() } else { this.props.error() }})
     }
 
     render() {
@@ -179,6 +191,26 @@ class AddUser extends React.Component {
                     </form>
                 </div>
                 </div>)
+    }
+}
+
+class InfoPage extends React.Component {
+    render() {
+        return (
+            <div>
+                <div class="row">
+                    <h2>{this.props.text}</h2>
+                </div>
+                <div class="row">
+                    {this.props.backClick !== undefined &&
+                        <button type="button" class="btn btn-primary mx-2" onClick={this.props.backClick}>Back</button>
+                    }
+                    {this.props.addMoreClick !== undefined &&
+                        <button type="button" class="btn btn-success" onClick={this.props.addMoreClick}>Add more</button>
+                    }
+                </div>
+            </div>)
+
     }
 }
 
