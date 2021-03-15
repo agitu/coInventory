@@ -1,14 +1,17 @@
 package org.coinventory.db;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Users {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String uname;
     private String surname;
+    @OneToOne(cascade = CascadeType.REMOVE)
+    @PrimaryKeyJoinColumn
+    private LoginUsers loginUsers;
 
     public Users() {
 
@@ -36,6 +39,14 @@ public class Users {
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public LoginUsers getLoginUsers() {
+        return loginUsers;
+    }
+
+    public void setLoginUsers(LoginUsers loginUsers) {
+        this.loginUsers = loginUsers;
     }
 
     @Override
