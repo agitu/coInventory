@@ -1,5 +1,6 @@
 package org.coinventory.db;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 
 @Entity
@@ -9,10 +10,12 @@ public class LoginUsers {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String email;
+    @JsonIgnore
     private String pwd;
     private Boolean adm;
     @OneToOne
     @JoinColumn(name = "users", referencedColumnName = "id")
+    @JsonIgnore
     private Users users;
 
     public LoginUsers() {
