@@ -86,6 +86,8 @@ class MainMenu extends React.Component {
 class ManageUsers extends React.Component {
     constructor(props) {
         super(props)
+        this.searchClick = this.searchClick.bind(this)
+        this.state = {usersTable: ""}
     }
 
     componentDidMount() {
@@ -96,13 +98,25 @@ class ManageUsers extends React.Component {
         this.props.saveState()
     }
 
+    searchClick() {
+        let value = document.getElementById('search').value
+        let url = "/users"
+        if (value != "") {
+            url = url + "?" + new URLSearchParams({surname: value})
+        }
+        fetch(url)
+            .then(res => res.json())
+            .then(res => console.log(res))
+        this.setState({usersTable: <UsersTable searchText={value} />})
+    }
+
     render() {
         return (<div>
-        <div class="row">
+        <div class="row mb-3">
             <div class="input-group">
                 <input id="search" type="text" class="form-control border-right-0 border" placeholder="Surname" />
                 <div class="input-group-append">
-                    <button class="btn btn-outline-secondary border-left-0 border" type="button">
+                    <button class="btn btn-outline-secondary border-left-0 border" type="button" onClick={this.searchClick}>
                         <i class="fa fa-search"></i>
                     </button>
                 </div>
@@ -112,11 +126,56 @@ class ManageUsers extends React.Component {
             </div>
         </div>
         <div class="row">
-            <table class="table">
-
-            </table>
+            {this.state.usersTable}
         </div>
         </div>)
+    }
+}
+
+class UsersTable extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {values: []}
+    }
+
+    componentDidMount() {
+        let url = "/users"
+        if (this.props.searchText) {
+            url = url + "?" + new URLSearchParams({surname: value})
+        }
+        fetch(url)
+            .then(res => res.json())
+            .then(res => this.setState({values: res}))
+    }
+
+    createUserLink(id, surname, uname) {
+         return <a id={"user-" + id} href="#">{surname + " " + uname}</a>
+    }
+
+    createAccountLink(id, email) {
+        return <a id={"account-" + id} href="#">{email}</a>
+    }
+
+    render() {
+        let users = this.state.values.map((v) =>
+        <tr>
+            <td>{this.createUserLink(v.id, v.surname, v.uname)}</td>
+            <td>{v.loginUsers && this.createAccountLink(v.loginUsers.id, v.loginUsers.email)}</td>
+        </tr>
+        )
+        return (
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">User name</th>
+                    <th scope="col">Account</th>
+                </tr>
+            </thead>
+            <tbody>
+                {users}
+            </tbody>
+        </table>
+        )
     }
 }
 
