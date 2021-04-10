@@ -37,4 +37,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @GetMapping("/{id}")
+    public Users getUser(@PathVariable Long id) {
+        return us.getUser(id);
+    }
 }
