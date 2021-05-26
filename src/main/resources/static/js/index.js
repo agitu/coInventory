@@ -8,6 +8,7 @@ class App extends React.Component {
         this.addUserSuccess = this.addUserSuccess.bind(this)
         this.addUserError = this.addUserError.bind(this)
         this.editUserClick = this.editUserClick.bind(this)
+        this.editAccountClick = this.editAccountClick.bind(this)
         this.datasetId = ""
         this.state = {dataset: <Profile />, isAdm: "false"}
     }
@@ -16,7 +17,7 @@ class App extends React.Component {
         fetch("http://localhost:8080/adm")
             .then(res => res.text())
             .then(res => {
-                this.setState({isAdm: res, dataset: (res == "true") ? <ManageUsers saveState={this.saveManageUsers} searchValue="" addUserClick={this.addUserClick} editUserClick={this.editUserClick} /> : <Profile />})
+                this.setState({isAdm: res, dataset: (res == "true") ? <ManageUsers saveState={this.saveManageUsers} searchValue="" addUserClick={this.addUserClick} editUserClick={this.editUserClick} editAccountClick={this.editAccountClick} /> : <Profile />})
                 this.datasetId = (res == "true") ? "manage-users" : "profile"
             })
     }
@@ -24,7 +25,7 @@ class App extends React.Component {
     showMainPage(datasetId) {
         if (datasetId == "manage-users") {
             var searchValue = (this.state.manageUsers && this.state.manageUsers.searchValue) || ""
-            this.setState({dataset: <ManageUsers saveState={this.saveManageUsers} searchValue={searchValue} addUserClick={this.addUserClick} editUserClick={this.editUserClick} />})
+            this.setState({dataset: <ManageUsers saveState={this.saveManageUsers} searchValue={searchValue} addUserClick={this.addUserClick} editUserClick={this.editUserClick} editAccountClick={this.editAccountClick} />})
         }
         else if (datasetId == "profile") {
             this.setState({dataset: <Profile />})
@@ -57,9 +58,13 @@ class App extends React.Component {
     }
 
     editUserClick(event) {
-        console.log("editUserClick")
         let a = event.target.id.split("-")
         this.setState({dataset: <EditUser userId={a[1]} cancelClick={this.cancelClick} />})
+    }
+
+    editAccountClick(event) {
+        let a = event.target.id.split("-")
+        this.setState({dataset: <EditAccount accountId={a[1]} cancelClick={this.cancelClick} />})
     }
 
     render() {
@@ -114,7 +119,7 @@ class ManageUsers extends React.Component {
         fetch(url)
             .then(res => res.json())
             .then(res => console.log(res))
-        this.setState({usersTable: <UsersTable searchText={value} editUserClick={this.props.editUserClick} />})
+        this.setState({usersTable: <UsersTable searchText={value} editUserClick={this.props.editUserClick} editAccountClick={this.props.editAccountClick} />})
     }
 
     render() {
@@ -159,15 +164,15 @@ class UsersTable extends React.Component {
          return (<a id={"user-" + id} href="#" onClick={editUserClick}>{surname + " " + uname}</a>)
     }
 
-    createAccountLink(id, email) {
-        return <a id={"account-" + id} href="#">{email}</a>
+    createAccountLink(id, email, editAccountClick) {
+        return <a id={"account-" + id} href="#" onClick={editAccountClick}>{email}</a>
     }
 
     render() {
         let users = this.state.values.map((v) =>
         <tr key={v.id}>
             <td>{this.createUserLink(v.id, v.surname, v.uname, this.props.editUserClick)}</td>
-            <td>{v.loginUsers && this.createAccountLink(v.loginUsers.id, v.loginUsers.email)}</td>
+            <td>{v.loginUsers && this.createAccountLink(v.loginUsers.id, v.loginUsers.email, this.props.editAccountClick)}</td>
         </tr>
         )
         return (
@@ -294,6 +299,51 @@ class EditUser extends React.Component {
                     <div class="d-flex justify-content-center">
                         <button type="button" class="btn btn-primary mx-2" onClick={this.props.cancelClick}>Cancel</button>
                         <button type="button" class="btn btn-success" onClick={this.saveForm}>Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        )
+    }
+}
+
+class EditAccount extends React.Component {
+    constructor(props) {
+        super(props)
+    }
+
+    componentDidMount() {
+        fetch("/account/" + this.props.accountId)
+            .then(res => res.json())
+            .then(res => { document.getElementById("email").value = res.email
+                           if (res.adm) { document.getElementById("role").value = "administrator" }})
+    }
+
+    saveForm() {
+
+    }
+
+    render() {
+        return (
+        <div>
+            <div class="row col-6">
+                <form class="col-12">
+                    <legend>Edit account</legend>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" />
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select class="form-control" name="role" id="role">
+                            <option value="user">User</option>
+                            <option value="administrator">Administrator</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary float-left">Reset password</button>
+                        <button type="button" class="btn btn-success float-right">Save</button>
+                        <button type="button" class="btn btn-primary mx-2 float-right" onClick={this.props.cancelClick}>Cancel</button>
                     </div>
                 </form>
             </div>
