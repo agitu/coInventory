@@ -32,6 +32,6 @@ public class LoginUserServiceImpl implements LoginUserService {
 
     @Override
     public LoginUsers getLoginUser(long id) {
-        return null;
+        return lur.findById(id).get();
     }
 }
