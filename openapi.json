@@ -1,0 +1,990 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "AZS Locator API",
+    "version": "3.11.0606"
+  },
+  "servers": [
+    {
+      "url": "https://api-dev.licard.com/api/v10"
+    },
+    {
+      "url": "https://api-test.licard.com/api/v10"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "TimePeriod": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Дата начала"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Дата окончания"
+          }
+        }
+      },
+      "PartnerViewType": {
+        "type": "string",
+        "description": "Тип открытия экрана партнёра, в зависимости от которого мы либо открываем сам экран, либо webView",
+        "enum": [
+          "basicView",
+          "webView"
+        ]
+      },
+      "PartnerOfferShortInfo": {
+        "type": "object",
+        "description": "Информация о партнере или категорий",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор партнера"
+          },
+          "description": {
+            "type": "string",
+            "description": "Описание предложения"
+          },
+          "points": {
+            "type": "integer",
+            "description": "Количество начисляемых баллов"
+          },
+          "pointsText": {
+            "type": "string",
+            "description": "Текст с количеством баллов за предложение",
+            "nullable": true
+          },
+          "shortDescriptionList": {
+            "type": "string",
+            "description": "Короткое описание партнера в листинге",
+            "nullable": true
+          },
+          "timePeriod": {
+            "$ref": "#/components/schemas/TimePeriod"
+          },
+          "ratePoints": {
+            "type": "integer",
+            "description": "Рейтинг популярности предложения"
+          },
+          "isNew": {
+            "type": "boolean",
+            "description": "Флаг новой новости"
+          },
+          "name": {
+            "type": "string",
+            "description": "Название"
+          },
+          "shortDescription": {
+            "type": "string",
+            "description": "Краткое описание предложения"
+          },
+          "logoUrl": {
+            "type": "string",
+            "description": "Ссылка на изображение лого"
+          },
+          "backgroundUrl": {
+            "type": "string",
+            "description": "Ссылка на изображение партнера",
+            "nullable": true
+          },
+          "viewType": {
+            "$ref": "#/components/schemas/PartnerViewType"
+          }
+        }
+      },
+      "RegionDictionaryItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор"
+          },
+          "name": {
+            "type": "string",
+            "description": "Название региона"
+          },
+          "countryName": {
+            "type": "string",
+            "description": "Название страны"
+          }
+        }
+      },
+      "Weekday": {
+        "type": "integer",
+        "description": "День недели",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "WeekdayHours": {
+        "type": "object",
+        "description": "Часть расписания работы станции",
+        "properties": {
+          "weekDay": {
+            "$ref": "#/components/schemas/Weekday"
+          },
+          "workHour": {
+            "type": "string",
+            "description": "Часы работы"
+          }
+        }
+      },
+      "PartnerPointInfo": {
+        "type": "object",
+        "description": "Данные о точке партнера на карте",
+        "properties": {
+          "weekdayHour": {
+            "type": "array",
+            "description": "Часы работы",
+            "items": {
+              "$ref": "#/components/schemas/WeekdayHours"
+            }
+          },
+          "id": {
+            "type": "string",
+            "description": "Идентификатор"
+          },
+          "name": {
+            "type": "string",
+            "description": "Название"
+          },
+          "address": {
+            "type": "string",
+            "description": "Адрес"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "Номер телефона"
+          },
+          "email": {
+            "type": "string",
+            "description": "Адрес электронной почты"
+          },
+          "website": {
+            "type": "string",
+            "description": "Сайт"
+          },
+          "services": {
+            "type": "string",
+            "description": "Описание услуг"
+          }
+        }
+      },
+      "PartnersGroupInfo": {
+        "type": "object",
+        "description": "Данные о группе партнеров",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Адрес"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Широта"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Долгота"
+          },
+          "partners": {
+            "type": "array",
+            "description": "Список партнеров",
+            "items": {
+              "$ref": "#/components/schemas/PartnerPointInfo"
+            }
+          }
+        }
+      },
+      "StationStatus": {
+        "type": "integer",
+        "description": "Статус АЗС, 1 - Открыта, 2 - Закрыта, 3 - Строится, 4 - Реконструкция",
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "StationType": {
+        "type": "integer",
+        "description": "Тип АЗС, 0 - Избранная, 1 - Франшизная, 2 - Фирменная, 3 - Автоматическая, 4 - Лидер сервиса",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "DictionaryItem": {
+        "type": "object",
+        "description": "Элемент справочника",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор"
+          },
+          "name": {
+            "type": "string",
+            "description": "Название"
+          }
+        }
+      },
+      "StationInfoV2": {
+        "type": "object",
+        "description": "Данные об АЗС",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор"
+          },
+          "name": {
+            "type": "string",
+            "description": "Название"
+          },
+          "number": {
+            "type": "string",
+            "description": "Номер"
+          },
+          "regionId": {
+            "type": "string",
+            "description": "Идентификатор региона"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StationStatus"
+          },
+          "paymentIds": {
+            "type": "array",
+            "description": "Способы оплаты",
+            "items": {
+              "type": "string"
+            }
+          },
+          "serviceIds": {
+            "type": "array",
+            "description": "Услуги",
+            "items": {
+              "type": "string"
+            }
+          },
+          "propertyIds": {
+            "type": "array",
+            "description": "Свойства",
+            "items": {
+              "type": "string"
+            }
+          },
+          "workHours": {
+            "type": "array",
+            "description": "Часы работы",
+            "items": {
+              "$ref": "#/components/schemas/WeekdayHours"
+            }
+          },
+          "types": {
+            "type": "array",
+            "description": "Типы АЗС",
+            "items": {
+              "$ref": "#/components/schemas/StationType"
+            }
+          },
+          "loyaltyProgramIds": {
+            "type": "array",
+            "description": "Программы лояльности",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rapidaInfoIds": {
+            "type": "array",
+            "description": "Информация по картам «Рапида»",
+            "items": {
+              "type": "string"
+            }
+          },
+          "azsPromoIds": {
+            "type": "array",
+            "description": "Информация по акциям",
+            "items": {
+              "type": "string"
+            }
+          },
+          "oilCardIds": {
+            "type": "array",
+            "description": "Информация по топливным картам",
+            "items": {
+              "type": "string"
+            }
+          },
+          "address": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "fuelIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DictionaryItem"
+            }
+          }
+        }
+      },
+      "TransactionOperationType": {
+        "type": "string",
+        "enum": [
+          "purchase",
+          "processing",
+          "refund",
+          "manualAdjustment",
+          "expirationPoints",
+          "transfer",
+          "promoAction",
+          "accrualPartners",
+          "socialNetworkPoints",
+          "referPoints",
+          "questPoints"
+        ],
+        "description": "Тип операции:\n  * purchase - Покупка на АЗС\n  * processing - Процессинг чека\n  * refund - Отмена\n  * manualAdjustment - Корректировка баллов\n  * expirationPoints - Сгорание баллов\n  * transfer - Перевод баллов с карты\n  * promoAction - Промоакция\n  * accrualPartners - Баллы от партнеров\n  * socialNetworkPoints - Баллы за пост в соц сети\n  * referPoints - Баллы за приглашение друга\n  * questPoints - Баллы за опрос\n"
+      },
+      "TransactionPosition": {
+        "type": "object",
+        "description": "Позиция транзакции",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Наименование товара"
+          },
+          "price": {
+            "type": "number",
+            "description": "Стоимость за единицу товара"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Общая стоимость за позицию"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Количество единиц товара(в шт. или литрах)"
+          }
+        }
+      },
+      "TransactionPromo": {
+        "type": "object",
+        "description": "Информация об акции",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Описание"
+          },
+          "points": {
+            "type": "integer",
+            "description": "Баллы за акцию"
+          }
+        }
+      },
+      "RatingStatusType": {
+        "type": "string",
+        "enum": [
+          "rated",
+          "unrated",
+          "not_rateable"
+        ],
+        "description": "Статус оценки:\n  * rated - Оценено\n  * unrated - Не оценено\n  * not_rateable - Нельзя оценить\n"
+      },
+      "TransactionFinancialInfo": {
+        "type": "object",
+        "description": "Детали финансовой транзакции",
+        "properties": {
+          "paidTotal": {
+            "type": "number",
+            "description": "Сумма оплаты"
+          },
+          "paidByMoney": {
+            "type": "number",
+            "description": "Оплачено деньгами"
+          },
+          "paidByPoints": {
+            "type": "integer",
+            "description": "Оплачено баллами"
+          },
+          "positions": {
+            "type": "array",
+            "description": "Позиции заказа",
+            "items": {
+              "$ref": "#/components/schemas/TransactionPosition"
+            }
+          },
+          "transactionPromo": {
+            "type": "array",
+            "description": "Примененные акции",
+            "items": {
+              "$ref": "#/components/schemas/TransactionPromo"
+            }
+          },
+          "stationId": {
+            "type": "integer",
+            "description": "Идентификатор АЗС"
+          },
+          "stationAddress": {
+            "type": "string",
+            "description": "Адрес АЗС"
+          },
+          "stationNumber": {
+            "type": "string",
+            "description": "Номер АЗС"
+          },
+          "rrn": {
+            "type": "string",
+            "description": "Значение Reference Retrieval Number – уникальный идентификатор банковской транзакции"
+          },
+          "ratingStatus": {
+            "description": "Статус оценки",
+            "$ref": "#/components/schemas/RatingStatusType"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Широта"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Долгота"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Валюта"
+          }
+        }
+      },
+      "TransactionInfo": {
+        "type": "object",
+        "description": "Детали транзакции",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "description": "Идентификатор транзакции"
+          },
+          "orderNumber": {
+            "type": "string",
+            "description": "Номер заказа/чека"
+          },
+          "operationType": {
+            "description": "Тип операции",
+            "$ref": "#/components/schemas/TransactionOperationType"
+          },
+          "operationDescription": {
+            "type": "string",
+            "description": "Описание операции. Приходит для нефинансовых операций",
+            "nullable": true
+          },
+          "operationPoints": {
+            "type": "integer",
+            "description": "Изменение баллов операцией(т.е. без учета оплаты баллами)"
+          },
+          "cardNumber": {
+            "type": "string",
+            "description": "Номер карты лояльности"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Дата и время транзакции без часового пояса"
+          },
+          "financialInfo": {
+            "description": "Детали финансовой операции",
+            "$ref": "#/components/schemas/TransactionFinancialInfo",
+            "nullable": true
+          },
+          "partnerName": {
+            "type": "string",
+            "description": "Название коммерческого партнёра, что участвует в инициации начисления баллов",
+            "nullable": true
+          }
+        }
+      },
+      "TransactionOperationInfo": {
+        "type": "object",
+        "description": "Детали транзакции и информация об АЗС",
+        "properties": {
+          "transactionInfo": {
+            "description": "Детали транзакции",
+            "$ref": "#/components/schemas/TransactionInfo"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Широта"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Долгота"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/card/transactions/list": {
+      "post": {
+        "summary": "Получение списка транзакций",
+        "description": "Получение списка транзакций",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cardId": {
+                    "type": "string",
+                    "description": "Идентификатор карты, опциональный параметр, в случае его отсутствия возвращается список транзакций по всем привязанным картам",
+                    "nullable": true
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "description": "Идентификатор сессии"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Номер страницы для получения. Должно быть больше 0."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Количество элементов на странице. Должно быть больше 0 и меньше 501."
+                  },
+                  "timePeriod": {
+                    "description": "Период транзакций для поиска. Дата начала периода должна быть не старше 1 года.",
+                    "$ref": "#/components/schemas/TimePeriod"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "transactions": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TransactionInfo"
+                          }
+                        },
+                        "nextPageAvailable": {
+                          "type": "boolean",
+                          "description": "Флаг для обозначения существования следующей страницы."
+                        }
+                      }
+                    },
+                    "errorCode": {
+                      "type": "integer",
+                      "enum": [
+                        0,
+                        1,
+                        3,
+                        8,
+                        65
+                      ],
+                      "description": "Описание ошибки:\n  * 1 - Пользователь не найден.\n  * 3 - Карта не найдена.\n  * 8 - Требуется пароль.\n  * 65 - Недопустимый временной период.\n"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "description": "Описание ошибки",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/card/transactions/unrated": {
+      "post": {
+        "summary": "Получение информации о неоцененной операции",
+        "description": "Получение информации о неоцененной операции",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "Идентификатор сессии"
+                  },
+                  "cardId": {
+                    "type": "string",
+                    "description": "Идентификатор карты"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "transactionOperationInfo": {
+                          "description": "Информация о неоцененной операции покупки",
+                          "$ref": "#/components/schemas/TransactionOperationInfo",
+                          "nullable": true
+                        }
+                      }
+                    },
+                    "errorCode": {
+                      "type": "integer",
+                      "enum": [
+                        0,
+                        1,
+                        3,
+                        8
+                      ],
+                      "description": "Описание ошибки:\n  * 1 - Пользователь не найден.\n  * 3 - Карта не найдена.\n  * 8 - Требуется пароль.\n"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "description": "Описание ошибки",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/common/region/list": {
+      "post": {
+        "summary": "Получение списка регионов",
+        "description": "Получение списка регионов",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "regions": {
+                          "type": "array",
+                          "description": "Список регионов",
+                          "items": {
+                            "$ref": "#/components/schemas/RegionDictionaryItem"
+                          }
+                        }
+                      }
+                    },
+                    "errorCode": {
+                      "type": "integer",
+                      "description": "Код ошибки"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "description": "Описание ошибки",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/common/partners/list": {
+      "post": {
+        "summary": "Получение списка партнеров",
+        "description": "Получение списка партнеров",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "all": {
+                    "type": "boolean",
+                    "description": "Опциональный параметр, если true то возвращаем список партнеров для РФ и РБ, в остальных случаях только РФ",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "partnersGroup": {
+                          "type": "array",
+                          "description": "Список групп партнеров",
+                          "items": {
+                            "$ref": "#/components/schemas/PartnersGroupInfo"
+                          }
+                        }
+                      }
+                    },
+                    "errorCode": {
+                      "type": "integer",
+                      "description": "Код ошибки"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "description": "Описание ошибки",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/common/station/list/v3": {
+      "post": {
+        "summary": "Получение списка АЗС с атрибутом Лидеры сервиса",
+        "description": "Получение списка АЗС с атрибутом Лидеры сервиса",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "all": {
+                    "type": "boolean",
+                    "description": "Опциональный параметр, если true то возвращаем список АЗС РФ и РБ, в остальных случаях только РФ",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "stations": {
+                          "type": "array",
+                          "description": "Список АЗС",
+                          "items": {
+                            "$ref": "#/components/schemas/StationInfoV2"
+                          }
+                        }
+                      }
+                    },
+                    "errorCode": {
+                      "type": "integer",
+                      "description": "Код ошибки"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "description": "Описание ошибки",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partners/offers": {
+      "post": {
+        "summary": "Получение постраничного списка партнеров",
+        "description": "Получение постраничного списка партнеров",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "description": "Номер страницы для получения. Число должно быть натуральным."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Количество элементов на странице."
+                  },
+                  "tag": {
+                    "type": "string",
+                    "description": "Опциональный тег для получения партнёров",
+                    "nullable": true
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Сессия пользователя, опциональный параметр, нужен для определения страны пользователя, если параметр null или отсутствует тогда считается что страна РФ",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "page",
+                  "limit"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "partnerOffers": {
+                          "type": "array",
+                          "description": "Список предложений партнеров",
+                          "items": {
+                            "$ref": "#/components/schemas/PartnerOfferShortInfo"
+                          }
+                        },
+                        "totalElementsAmount": {
+                          "type": "integer",
+                          "description": "Общее количество элементов."
+                        }
+                      }
+                    },
+                    "errorCode": {
+                      "type": "integer",
+                      "description": "Код ошибки"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "description": "Описание ошибки",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partners/promoted": {
+      "post": {
+        "summary": "Получение списка приоритетных предложений",
+        "description": "Получение списка приоритетных предложений",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mainPage": {
+                    "description": "true, если нужно получить список приоритетных партнеров для главного экрана приложения",
+                    "type": "boolean"
+                  },
+                  "sessionId": {
+                    "description": "Сессия пользователя, опциональный параметр, нужен для определения страны пользователя, если параметр null или отсутствует тогда считается что страна РФ",
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  },
+                  "partnerName": {
+                    "description": "Всегда возвращать название партнера, параметр актуален для ios",
+                    "type": "boolean",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "mainPage"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "partnerOffers": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PartnerOfferShortInfo"
+                          }
+                        }
+                      }
+                    },
+                    "errorCode": {
+                      "type": "integer",
+                      "description": "Код ошибки"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "description": "Описание ошибки",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
